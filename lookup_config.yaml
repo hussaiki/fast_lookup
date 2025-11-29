@@ -1,0 +1,29 @@
+# Generic Lookup Configuration
+
+lookups:
+  # Name of the lookup definition
+  securities:
+    description: "Security Master Lookup"
+    # Path to the data file (Parquet recommended for speed)
+    file_path: "data/security_lookup.parquet"
+    
+    # Columns to use as the composite key for lookup
+    # Order matters! lookup(['ISIN', 'US...']) matches this order
+    key_columns: 
+      - "security_id_type"
+      - "security_id_value"
+      
+    # Columns to return as the result
+    value_columns: 
+      - "vin"
+      
+    # Optional: Optimize for memory or speed?
+    # 'memory': Load only key/value columns
+    # 'speed': Load all columns (default)
+    optimization: "memory"
+
+  # Example of another table (e.g., Customer lookup)
+  # customers:
+  #   file_path: "data/customers.parquet"
+  #   key_columns: ["customer_id"]
+  #   value_columns: ["name", "email"]

@@ -48,6 +48,12 @@ securities = [
     ('ISIN', 'US0378331005')
 ]
 results = lookup_engine.lookup_batch(securities)
+
+# Bulk DataFrame Lookup (For millions of records)
+import pandas as pd
+df = pd.read_csv('my_securities.csv') # Must have security_id_type and security_id_value columns
+result_df = lookup_engine.lookup_dataframe(df)
+# Returns DataFrame with new 'vin' column
 ```
 
 ## Performance Benchmarks
@@ -57,10 +63,49 @@ Tested on 10 Million records:
 | Metric | Result |
 |--------|--------|
 | **Data Load Time** | ~17 seconds |
-| **Single Lookup Time** | ~72 microseconds (0.072 ms) |
-| **Throughput** | ~13,800 lookups/sec |
-| **File Size** | ~178 MB (Parquet Snappy) |
-| **Memory Usage** | ~1.1 GB |
+| **Single Lookup Time** | ~72 microseconds |
+| **Throughput (Iterative)** | ~14,000 lookups/sec |
+| **Throughput (Bulk)** | ~11,000 lookups/sec |
+| **2 Million Records** | ~2.5 minutes |
+
+**Note**: For 2M+ records, the system processes at ~10k-14k records per second.
+
+## Generic Lookup (Configurable)
+
+You can use `generic_lookup.py` to lookup against **any** table defined in `lookup_config.yaml`.
+
+### 1. Configure `lookup_config.yaml`
+```yaml
+lookups:
+  securities:
+    file_path: "data/security_lookup.parquet"
+    key_columns: ["security_id_type", "security_id_value"]
+    value_columns: ["vin"]
+```
+
+### 2. Run Generic Lookup
+```python
+from generic_lookup import GenericLookupEngine
+
+# Initialize
+engine = GenericLookupEngine('lookup_config.yaml')
+engine.load_table('securities')
+
+# Single Lookup
+result = engine.get('securities', ['ISIN', 'US0378331005'])
+
+# Bulk Lookup
+import pandas as pd
+df = pd.read_csv('my_data.csv') # Must have key columns
+result_df = engine.get_bulk('securities', df)
+```
+
+## Troubleshooting
+
+**"Lookup takes forever"**
+- Ensure you are NOT using `df.sample(n)` on large datasets for testing. Generating random samples from 10M records is slow.
+- Use `df.iloc[:n]` or `df.head(n)` for fast testing.
+- The lookup engine itself is very fast (~70µs per lookup).
 
 ## Data Structure
 

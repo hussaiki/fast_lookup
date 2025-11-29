@@ -168,7 +168,8 @@ class FastSecurityLookup:
     
     def lookup_batch(self, lookups):
         """
-        Batch lookup for multiple securities.
+        Batch lookup for multiple securities (Iterative).
+        Use lookup_dataframe for large datasets (>10k records).
         
         Args:
             lookups: List of (security_type, security_value) tuples
@@ -180,6 +181,39 @@ class FastSecurityLookup:
         for sec_type, sec_value in lookups:
             results.append(self.lookup(sec_type, sec_value))
         return results
+
+    def lookup_dataframe(self, df, type_col='security_id_type', value_col='security_id_value'):
+        """
+        High-performance bulk lookup for DataFrames (Vectorized).
+        Recommended for large datasets (>10k records).
+        
+        Args:
+            df: Input DataFrame containing security identifiers
+            type_col: Name of column containing security type
+            value_col: Name of column containing security value
+            
+        Returns:
+            DataFrame with 'vin' column added (NaN where not found)
+        """
+        print(f"Performing bulk lookup on {len(df):,} records...")
+        start = time.time()
+        
+        # Ensure index is reset to preserve order
+        result = df.copy()
+        
+        # Perform left join (highly optimized in pandas)
+        # We join on the columns that match our index
+        result = result.join(
+            self.df, 
+            on=[type_col, value_col], 
+            how='left'
+        )
+        
+        elapsed = time.time() - start
+        print(f"✅ Bulk lookup complete in {elapsed:.2f}s")
+        print(f"   Speed: {len(df)/elapsed:,.0f} lookups/sec")
+        
+        return result
     
     def benchmark(self, num_lookups=10000):
         """Benchmark lookup performance."""
