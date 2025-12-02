@@ -1,0 +1,42 @@
+# Oracle to Parquet Export Configuration
+
+database:
+  user: "your_username"
+  password: "your_password"
+  dsn: "hostname:port/service_name"  # e.g., "oracle-db.example.com:1521/ORCL"
+
+export:
+  # Table configuration
+  schema: "SMCAPP"
+  table: "MASTER_VIN_LKUP"
+  columns:
+    - "pkcol"
+    - "pkval"
+    - "pkvin"
+  
+  # Filter clause (WHERE condition)
+  filter: "feed_cd = 'YOUR_FEED_VALUE'"  # Example: "feed_cd = 'PROD'"
+  
+  # Output configuration
+  output_file: "master_vin_lkup.parquet"
+  compression: "snappy"  # Options: snappy, gzip, zstd, lz4
+  
+  # Performance tuning
+  parallel_workers: 8  # Number of parallel database connections
+  fetch_size: 10000    # Rows fetched per database round-trip
+  chunk_size: 50000    # Rows processed in memory per chunk
+  row_group_size: 100000  # Parquet row group size
+
+# Example configurations for other tables:
+
+# Uncomment and modify for different tables:
+# export:
+#   schema: "ANOTHER_SCHEMA"
+#   table: "ANOTHER_TABLE"
+#   columns:
+#     - "column1"
+#     - "column2"
+#     - "column3"
+#   filter: "status = 'ACTIVE' AND date_created > TO_DATE('2024-01-01', 'YYYY-MM-DD')"
+#   output_file: "another_table.parquet"
+#   parallel_workers: 4

@@ -1,0 +1,20 @@
+# Oracle to Parquet Export Requirements
+
+# Oracle Driver (Modern, replaces cx_Oracle)
+oracledb>=2.0.0
+
+# Data processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Parquet format
+pyarrow>=14.0.0
+
+# Configuration
+PyYAML>=6.0.0
+
+# Optional: For even better performance
+# If you want to use Oracle Instant Client (thick mode):
+# 1. Download Oracle Instant Client from oracle.com
+# 2. Extract to /opt/oracle/instantclient_21_x/ (or your preferred location)
+# 3. Uncomment the init_oracle_client line in the script
