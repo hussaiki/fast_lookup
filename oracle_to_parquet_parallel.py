@@ -110,6 +110,12 @@ class OracleToParquetExporter:
             if filter_clause:
                 query += f" WHERE {filter_clause}"
             
+            # ORDER BY key columns for pre-sorted export (critical for fast lookups)
+            # This makes set_index + sort_index unnecessary in Python
+            sort_columns = self.export_config.get('sort_columns', [])
+            if sort_columns:
+                query += f" ORDER BY {', '.join(sort_columns)}"
+            
             # Oracle 12c+ pagination (more efficient than ROWNUM)
             query += f" OFFSET {offset} ROWS FETCH NEXT {limit} ROWS ONLY"
             

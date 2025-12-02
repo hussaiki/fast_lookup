@@ -27,6 +27,10 @@ export:
   chunk_size: 1000000   # Rows processed in memory per chunk (1M rows)
   row_group_size: 500000  # Parquet row group size
   oracle_parallel_degree: 16  # Oracle parallel query hint (0 = disabled, 16 = use 16 CPUs)
+  
+  # CRITICAL for fast lookups: Sort data during export
+  # This eliminates the need for pandas sort_index() which is VERY slow on 100M rows
+  sort_columns: ["pkcol", "pkval"]  # Order by these columns
 
 # Example configurations for other tables:
 
