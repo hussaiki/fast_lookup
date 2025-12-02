@@ -21,11 +21,12 @@ export:
   output_file: "master_vin_lkup.parquet"
   compression: "snappy"  # Options: snappy, gzip, zstd, lz4
   
-  # Performance tuning
-  parallel_workers: 8  # Number of parallel database connections
-  fetch_size: 10000    # Rows fetched per database round-trip
-  chunk_size: 50000    # Rows processed in memory per chunk
-  row_group_size: 100000  # Parquet row group size
+  # Performance tuning (optimized for 125GB RAM server)
+  parallel_workers: 16  # Number of parallel database connections
+  fetch_size: 500000    # Rows fetched per database round-trip (50x increase!)
+  chunk_size: 1000000   # Rows processed in memory per chunk (1M rows)
+  row_group_size: 500000  # Parquet row group size
+  oracle_parallel_degree: 16  # Oracle parallel query hint (0 = disabled, 16 = use 16 CPUs)
 
 # Example configurations for other tables:
 

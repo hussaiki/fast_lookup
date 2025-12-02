@@ -97,9 +97,15 @@ class OracleToParquetExporter:
             cursor = conn.cursor()
             cursor.arraysize = self.export_config.get('fetch_size', 10000)
             
-            # Build query
+            # Build query with optional parallel hint
             cols = ", ".join(columns)
-            query = f"SELECT {cols} FROM {schema}.{table}"
+            parallel_degree = self.export_config.get('oracle_parallel_degree', 0)
+            
+            if parallel_degree > 0:
+                # Use Oracle parallel query hint to utilize multiple CPUs
+                query = f"SELECT /*+ PARALLEL({parallel_degree}) */ {cols} FROM {schema}.{table}"
+            else:
+                query = f"SELECT {cols} FROM {schema}.{table}"
             
             if filter_clause:
                 query += f" WHERE {filter_clause}"
